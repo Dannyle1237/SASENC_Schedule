@@ -26,7 +26,7 @@ def is_time_in_range(target_time, start_time, end_time):
 data = ""
 schedule_data = {}
 
-with open('NC.csv', mode='r') as file:
+with open('./NC.csv', mode='r') as file:
     csv_reader = csv.reader(file)
     header = next(csv_reader)  # Read the header row
     dates = header[1::2]  # Extract dates from the header
@@ -68,31 +68,36 @@ current_day = current_time_in_atlanta.strftime("%A")
 # momth and day of the month
 current_month = current_time_in_atlanta.strftime("%m")
 current_day_of_month = current_time_in_atlanta.strftime("%d")
-current_hr = current_time_in_atlanta.strftime("%H")
+current_hr = current_time_in_atlanta.strftime("%I")
 current_min = current_time_in_atlanta.strftime("%m")
 am_pm = current_time_in_atlanta.strftime("%p")
 
 current_day = f"{current_day} - {current_month}/{current_day_of_month}"
 current_time = f"{current_hr}:{current_min}{am_pm}"
 
-current_day_data = {
-    "current_day": current_day,
-    "current_day_data": schedule_data[current_day]
-}
+#print(current_time)
 
-current_data = {
-    "time_range" : f"Current Time: {current_time}",
-    "description": "Nothing is going on right now, enjoy your day!"
-}
+current_day_data = {}
+current_day_data["current_day"] = current_day
 
-if current_day in schedule_data:
-    for time in schedule_data[current_day]:
-        tokens = time.split()
-        if(is_time_in_range(current_time, tokens[0], tokens[2])):
-            current_data = {
-                "time_range" :time,
-                "description": schedule_data[current_day][time]}
+# if current_day in schedule_data:
+#     for time in schedule_data[current_day]:
+#         tokens = time.split()
+#         if(is_time_in_range(current_time, tokens[0], tokens[2])):
+#             current_day_data["time_range"] = time
+#             current_day_data["activity"] = schedule_data[current_day][time]
+#         else:
+#             current_day_data["time_range"] = current_time
+#             current_day_data["activity"] = "Nothings happening atm"
+# else:
+#     current_day_data["time_range"] = current_time
+#     current_day_data["activity"] = "Nothings happening atm"
 
+current_day_data["current_day"] = "Wednesday - 10/11"
+current_day_data["time_range"] = "05:00AM - 06:00AM"
+
+
+#Full schedule 
 json_schedule_data = {
     "schedule": {},
     "sorted_dates": []
@@ -111,18 +116,16 @@ json_schedule_data["sorted_dates"] = sorted(json_schedule_data["sorted_dates"], 
 # for item in json_schedule_data:
 #     print(f"{item}:\n{json_schedule_data[item]}")
 
+#Retrieve all the schedules
 @app.route('/get_schedule_data', methods=['GET'])
 def get_schedule_data():
     print(f"returning {jsonify(json_schedule_data)}")
     return jsonify(json_schedule_data)
 
+#Get the current date, time, and activity data
 @app.route('/get_current_day_data', methods=['GET'])
 def get_current_day_data():
     return jsonify(current_day_data)
-
-@app.route('/get_current_data', methods=['GET'])
-def get_current_data():
-    return jsonify(current_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
